@@ -1,8 +1,10 @@
 // Get the url
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json";
 
+///////////////////////// CHARTS ///////////////////////////////////////
+
 // Creating function
-function getChart(id) {
+function Chart(id) {
   // data from the url
   d3.json(url).then(function(data) {
       console.log(data)
@@ -17,18 +19,18 @@ function getChart(id) {
       console.log(samplevalues);
 
       // get only top 10 otu ids for the plot OTU and reversing it. 
-      var OTU_top = (samples.otu_ids.slice(0, 10)).reverse();
-      console.log(OTU_top);
+      var OTU_top_10 = (samples.otu_ids.slice(0, 10)).reverse();
+      console.log(OTU_top_10);
       
       // get the otu id's to the desired form for the plot
-      var OTU_id = OTU_top.map(d => "OTU " + d)
+      var OTU_id = OTU_top_10.map(d => "OTU " + d)
       console.log(OTU_id);
 
        // get the top 10 labels for the plot
       var labels = samples.otu_labels.slice(0, 10);
       console.log(labels);
 
-     ////////////////////////////Bar Chart/////////////////////////
+////////////////////////////Bar Chart/////////////////////////
      
      // create trace variable
       var trace = {
@@ -44,13 +46,15 @@ function getChart(id) {
 
       // create layout variable
       var layout = {
-          title: "Top 10 OTU Samples",
+          title: "Top 10 Bacteria Culteres Found",
+          height: 500,
+          width: 800
       };
 
       // create the bar chart
       Plotly.newPlot("bar", data, layout);
     
-      //////////////////////////////// The bubble chart////////////////////////////////////////////////
+////////////////////// The Bubble Chart  //////////////////////////////
 
       // create trace variable 
       var trace1 = {
@@ -59,16 +63,18 @@ function getChart(id) {
           mode: "markers",
           marker: {
               size: samples.sample_values,
-              color: samples.otu_ids
+              color: samples.otu_ids,
+              colorscale: "Earth"
           },
           text: samples.otu_labels
       };
 
       // set the layout
       var layout = {
+          title: "Bacteria Cultures Per Sample",
           xaxis:{title: "OTU ID"},
           height: 800,
-          width: 1200
+          width: 1300
       };
 
       // creating data variable 
@@ -79,10 +85,10 @@ function getChart(id) {
     });
   }  
 
-  /////////////////////////////////////Demographic Info/////////////////////////////////////////
+  ////////////////////////// Drop Down Info Box /////////////////////////////////////////
 
 // creating the function to get the data
-function getData(id) {
+function Data(id) {
   // data from the url
   d3.json(url).then((data)=> {
       
@@ -91,25 +97,28 @@ function getData(id) {
 
       // filter meta data
       var metaID = metadata.filter(meta => meta.id.toString() === id)[0];
-      var demographicInfo = d3.select("#sample-metadata");
+      var demInfo = d3.select("#sample-metadata");
+
+      // Use `.html("") to clear any existing metadata
+      demInfo.html("");
 
       //get meta data for selected id
       Object.entries(metaID).forEach((id) => {   
-              demographicInfo.append().text(id[0] + ": " + id[1] + "\n");    
+              demInfo.append().text(id[0].toUpperCase() +": " +id[1] + "\n");    
       });
   });
 }
 
 // create the function for the change event
 function optionChanged(id) {
-  getChart(id);
-  getData(id);
+  Chart(id);
+  Data(id);
 }
 
 // create the function for the initial data rendering
 function init() {
   // dropdown menu 
-  var dropdown = d3.select("#selDataset");
+  var dropdownmenu = d3.select("#selDataset");
 
   // data from the url
   d3.json(url).then((data)=> {
@@ -117,12 +126,13 @@ function init() {
 
       // creating options for dropdown menu
       data.names.forEach(function(name) {
-          dropdown.append("option").text(name).property("value");
+          dropdownmenu.append("option").text(name).property("value");
       });
 
-      getChart(data.names[0]);
-      getData(data.names[0]);
+      Chart(data.names[0]);
+      Data(data.names[0]);
   });
 }
 
+// Initialize the dashboard
 init();
